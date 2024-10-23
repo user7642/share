@@ -1,0 +1,178 @@
+// Hàm để tải xuống tệp
+
+function downloadImage(en, imgSrc, callback) {
+
+    // Kiểm tra nếu ảnh là GIF thì bỏ qua
+
+    if (imgSrc.endsWith('.gif')) {
+
+        console.log(`Bỏ qua ảnh động: ${imgSrc}`);
+
+        if (callback) {
+
+            setTimeout(callback, downloadDelay); // Gọi callback nếu có
+
+        }
+
+        return; // Không tải ảnh động
+
+    }
+
+    const link = document.createElement('a');
+
+    link.href = imgSrc;
+
+    link.download = en + ".png";
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    document.body.removeChild(link);
+
+    if (callback) {
+
+        setTimeout(callback, downloadDelay); // Gọi callback sau khi chờ
+
+    }
+
+}
+
+// Hàm tải xuống tệp CSV
+
+function downloadCSV(csvContent) {
+
+    const csvFile = new Blob([csvContent], { type: 'text/csv' });
+
+    const link = document.createElement('a');
+
+    link.href = URL.createObjectURL(csvFile);
+
+
+    link.download = document.title + '.csv';
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    document.body.removeChild(link);
+
+}
+
+// Lấy tất cả các phần tử chứa thuật ngữ
+
+let csv = [];
+
+let terms = document.querySelectorAll(".SetPageTerms-term");
+
+let batchSize = 10; // Kích thước nhóm tải ảnh
+
+
+let downloadDelay = 2000; // Thời gian chờ giữa các lần tải xuống (ms)
+
+
+let currentBatch = 0;
+
+let imagesToDownload = [];
+
+
+// Lặp qua các phần tử thuật ngữ để thu thập dữ liệu
+
+
+terms.forEach((term) => {
+
+
+    let enElement = term.querySelector("span.TermText.notranslate.lang-en");
+
+
+    let viElement = term.querySelector("span.TermText.notranslate.lang-vi");
+
+
+    let imgElement = term.querySelector("img.SetPageTerm-image");
+
+
+    let en = enElement ? enElement.innerHTML : "N/A";
+
+
+    let vi = viElement ? viElement.innerHTML : "N/A";
+
+
+    let imgSrc = imgElement ? imgElement.src : null;
+
+
+    // Thêm vào mảng CSV với hoặc không có ảnh
+
+
+    if (imgSrc) {
+
+
+        csv.push(`${en};${vi};<img src="${en}.png">`);
+
+
+        imagesToDownload.push({ en, imgSrc });
+
+
+    } else {
+
+
+        csv.push(`${en};${vi};;`);
+
+
+    }
+
+
+});
+
+
+// Hàm xử lý việc tải ảnh theo từng nhóm
+
+
+function downloadImageBatch(startIndex) {
+
+
+    if (startIndex >= imagesToDownload.length) {
+
+
+        console.log("Đã hoàn tất tải ảnh. Bắt đầu tải CSV.");
+
+
+        downloadCSV(csv.join('\n'));
+
+
+        return;
+
+
+    }
+
+
+    let endIndex = Math.min(startIndex + batchSize, imagesToDownload.length);
+
+
+
+    let batch = imagesToDownload.slice(startIndex, endIndex);
+
+
+    let downloadNextBatch = () => {
+
+        downloadImageBatch(endIndex); // Gọi tải nhóm tiếp theo
+
+    };
+
+
+    batch.forEach((item, index) => {
+
+
+        let isLastInBatch = index === batch.length - 1;
+
+        downloadImage(item.en, item.imgSrc, isLastInBatch ? downloadNextBatch : null);
+
+    });
+
+}
+
+// Bắt đầu quá trình tải xuống
+
+console.log("Bắt đầu tải ảnh theo nhóm...");
+
+downloadImageBatch(0);
+
