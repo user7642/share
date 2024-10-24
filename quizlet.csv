@@ -26,7 +26,7 @@ async function downloadImage(imageSrc, imageName) {
         // Chờ một chút để đảm bảo quá trình tải xuống hoàn tất trước khi tiếp tục
         setTimeout(() => {
             resolve();
-        }, 1000);  // Có thể điều chỉnh thời gian chờ nếu cần
+        }, 500);  // Có thể điều chỉnh thời gian chờ nếu cần
     });
 }
 
