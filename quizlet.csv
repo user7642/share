@@ -1,6 +1,6 @@
 // Hàm tải xuống tệp CSV
 function downloadCSV(csvContent) {
-    const csvFile = new Blob([csvContent],{
+    const csvFile = new Blob([csvContent], {
         type: 'text/csv'
     });
     const link = document.createElement('a');
@@ -13,7 +13,7 @@ function downloadCSV(csvContent) {
 
 // Hàm tải xuống hình ảnh đồng bộ
 async function downloadImage(imageSrc, imageName) {
-    return new Promise( (resolve, reject) => {
+    return new Promise((resolve, reject) => {
         const link = document.createElement('a');
         link.href = imageSrc;
         link.download = imageName;
@@ -25,13 +25,10 @@ async function downloadImage(imageSrc, imageName) {
         document.body.removeChild(link);
 
         // Chờ một chút để đảm bảo quá trình tải xuống hoàn tất trước khi tiếp tục
-        setTimeout( () => {
+        setTimeout(() => {
             resolve();
-        }
-        , 500);
-        // Có thể điều chỉnh thời gian chờ nếu cần
-    }
-    );
+        }, 500); // Có thể điều chỉnh thời gian chờ nếu cần
+    });
 }
 
 // Hàm chính để xử lý việc thu thập dữ liệu và tải đồng bộ
@@ -54,8 +51,8 @@ async function processTermsAndDownload() {
         // Thêm vào mảng CSV
         csv.push(`${en};${vi};<img src="${imgName}">;`);
 
-        // Tải xuống hình ảnh nếu có
-        if (imgSrc) {
+        // Tải xuống hình ảnh nếu có và không phải file .gif
+        if (imgSrc && !imgSrc.endsWith('.gif')) {
             await downloadImage(imgSrc, imgName);
         }
     }
