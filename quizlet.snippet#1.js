@@ -26,9 +26,9 @@ terms.forEach( (term) => {
     let imgSrc = imgElement ? imgElement.src.split('/').pop() : null;
 
     // Thêm vào mảng CSV
-    csv.push(`${en};${vi};${imgSrc};`);
+    csv.push(`${en};${vi};<img src="${imgSrc}">;`);
 }
 );
 
-//console.log(csv.join('\n'));
+console.log(csv.join('\n'));
 downloadCSV(csv.join('\n'));
