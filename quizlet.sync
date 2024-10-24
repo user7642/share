@@ -1,0 +1,64 @@
+// Hàm tải xuống tệp CSV
+function downloadCSV(csvContent) {
+    const csvFile = new Blob([csvContent], {
+        type: 'text/csv'
+    });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(csvFile);
+    link.download = document.title + '.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Hàm tải xuống hình ảnh đồng bộ
+async function downloadImage(imageSrc, imageName) {
+    return new Promise((resolve, reject) => {
+        const link = document.createElement('a');
+        link.href = imageSrc;
+        link.download = imageName; // Set tên tệp để tải xuống
+        document.body.appendChild(link);
+
+        // Giả lập một khoảng thời gian chờ cho phép quá trình tải xuống hoàn tất
+        link.click();
+        document.body.removeChild(link);
+
+        // Chờ một chút để đảm bảo quá trình tải xuống hoàn tất trước khi tiếp tục
+        setTimeout(() => {
+            resolve();
+        }, 1000);  // Có thể điều chỉnh thời gian chờ nếu cần
+    });
+}
+
+// Hàm chính để xử lý việc thu thập dữ liệu và tải đồng bộ
+async function processTermsAndDownload() {
+    // Lấy tất cả các phần tử chứa thuật ngữ
+    let csv = [];
+    let terms = document.querySelectorAll(".SetPageTerms-term");
+
+    // Lặp qua các phần tử thuật ngữ để thu thập dữ liệu
+    for (const term of terms) {
+        let enElement = term.querySelector("span.TermText.notranslate.lang-en");
+        let viElement = term.querySelector("span.TermText.notranslate.lang-vi");
+        let imgElement = term.querySelector("img.SetPageTerm-image");
+
+        let en = enElement ? enElement.innerHTML : "N/A";
+        let vi = viElement ? viElement.innerHTML : "N/A";
+        let imgSrc = imgElement ? imgElement.src : null;
+        let imgName = imgSrc ? imgSrc.split('/').pop() : "no_image";
+
+        // Thêm vào mảng CSV
+        csv.push(`${en};${vi};<img src="${imgName}">;`);
+
+        // Tải xuống hình ảnh nếu có
+        if (imgSrc) {
+            await downloadImage(imgSrc, imgName);
+        }
+    }
+
+    // Tải xuống tệp CSV sau khi hoàn thành việc tải hình ảnh
+    downloadCSV(csv.join('\n'));
+}
+
+// Gọi hàm chính
+processTermsAndDownload();
